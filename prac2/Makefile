@@ -122,6 +122,7 @@ halt: check-openocd
 run: $(BIN) check-openocd
 	@echo "Ejecutando el programa ..."
 	@echo -e "soft_reset_halt\n load_image $< $(SRAM_BASE)\n resume $(SRAM_BASE)" | nc -i 1 localhost 4444  > /dev/null
+	killall openocd
 
 .PHONY: debug
 debug: $(BIN) check-openocd hello.elf
@@ -138,11 +139,11 @@ $(SERIAL_PORT):
 
 $(MC1322X_LOAD): $(EXTRA_TOOLS_PATH)/mc1322x-load
 	@echo "Construyendo mc1322x_load ..."
-	@make -C $< install 
+	@make -C $< install
 
 $(BBMC): $(EXTRA_TOOLS_PATH)/bbmc
 	@echo "Construyendo bbmc ..."
-	@make -C $< install 
+	@make -C $< install
 
 .PHONY: run2
 run2: $(BIN) $(MC1322X_LOAD) $(SERIAL_PORT)
