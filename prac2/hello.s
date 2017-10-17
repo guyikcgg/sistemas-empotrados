@@ -47,31 +47,43 @@
 _start:
         @ Configuramos el GPIO44 para que sea de salida
         ldr     r4, =GPIO_PAD_DIR1
-        ldr     r5, =LED_RED_MASK
-        ldr     r6, =LED_GREEN_MASK
-        orr     r5, r5, r6
+        ldr     r5, =(LED_RED_MASK|LED_GREEN_MASK)
+@        ldr     r6, =LED_GREEN_MASK
+@        orr     r5, r5, r6
         str     r5, [r4]
 
         @ Configuramos el GPIO23 y GPIO022 para que sean de salida
-@        ldr     r4, =GPIO_PAD_DIR0
-@        ldr     r5, =SW2_OUTPUT_MASK
-@        ldr     r6, =SW3_OUTPUT_MASK
-@        orr     r5, r5, r6
-@        str     r5, [r4]
+        @ This step is not necessary, since GPIO023 and GPIO022 are outputs by default
+        @ (see Reference Manual 11.7.1)
+        @ ldr     r4, =GPIO_PAD_DIR0
+        @ ldr     r5, =SW2_OUTPUT_MASK
+        @ ldr     r6, =SW3_OUTPUT_MASK
+        @ orr     r5, r5, r6
+        @ str     r5, [r4]
+
+        @ Set SW pins to HIGH
+        ldr     r5, =(SW2_OUTPUT_MASK|SW3_OUTPUT_MASK)
+        ldr     r8, =GPIO_DATA_SET0
+        str     r5, [r8]
 
         @ Direcciones de los registros GPIO_DATA_SET1 y GPIO_DATA_RESET1
         ldr     r6, =GPIO_DATA_SET1
         ldr     r7, =GPIO_DATA_RESET1
 
-@        ldr     r5, =LED_GREEN_MASK
-
-        b       loop
+        @ Turn off LEDs
+@        ldr     r4, =GPIO_PAD_DIR1
+@        ldr     r5, =LED_RED_MASK
+@        ldr     r6, =LED_GREEN_MASK
+@        orr     r5, r5, r6
+@        str     r5, [r7]
 
 led_select:
         @ Check buttons
         ldr     r4, =GPIO_DATA0
-        subs    r4, r4, #SW2_INPUT_MASK
-        beq     green_led
+        ldr     r0, [r4]
+        ldr     r8, =SW3_INPUT_MASK
+        tst     r0, r8
+        bne     green_led
 
 red_led:
         ldr     r5, =LED_RED_MASK
@@ -83,7 +95,7 @@ green_led:
         b       blink
 
 loop:
-@        b       led_select
+        b       led_select
 
 blink:
         @ Encendemos el led
@@ -102,6 +114,8 @@ blink:
 
         @ Bucle infinito
         b       loop
+
+loop2:
 
 @
 @ Función que produce un retardo
