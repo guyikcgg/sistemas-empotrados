@@ -70,34 +70,33 @@ _start:
         ldr     r6, =GPIO_DATA_SET1
         ldr     r7, =GPIO_DATA_RESET1
 
-        @ Turn off LEDs
-@        ldr     r4, =GPIO_PAD_DIR1
-@        ldr     r5, =LED_RED_MASK
-@        ldr     r6, =LED_GREEN_MASK
-@        orr     r5, r5, r6
-@        str     r5, [r7]
 
 led_select:
         @ Check buttons
         ldr     r4, =GPIO_DATA0
-        ldr     r0, [r4]
+        ldr     r4, [r4]
         ldr     r8, =SW3_INPUT_MASK
-        tst     r0, r8
+        tst     r4, r8
         bne     green_led
+        ldr     r4, =GPIO_DATA0
+        ldr     r4, [r4]
+        ldr     r8, =SW2_INPUT_MASK
+        tst     r4, r8
+        bne     red_led
+        mov     pc, lr
 
 red_led:
         ldr     r5, =LED_RED_MASK
-        b       blink
+        b       loop
 
 green_led:
         @ Direcciones de los registros GPIO_DATA_SET1 y GPIO_DATA_RESET1
         ldr     r5, =LED_GREEN_MASK
-        b       blink
+        b       loop
 
 loop:
-        b       led_select
+        bl      led_select
 
-blink:
         @ Encendemos el led
         str     r5, [r6]
 
@@ -108,6 +107,8 @@ blink:
         @ Apagamos el led
         str     r5, [r7]
 
+        bl      led_select
+
         @ Pausa corta
         ldr     r0, =DELAY
         bl      pause
@@ -115,7 +116,6 @@ blink:
         @ Bucle infinito
         b       loop
 
-loop2:
 
 @
 @ Función que produce un retardo
