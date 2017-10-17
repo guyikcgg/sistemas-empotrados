@@ -127,7 +127,7 @@ run: $(BIN) check-openocd
 .PHONY: debug
 debug: $(BIN) check-openocd hello.elf
 	@echo "Entrando en la interfaz de depuracion ..."
-	@echo -e "soft_reset_halt\n load_image $< $(SRAM_BASE)\n continue $(SRAM_BASE)" | nc -i 1 localhost 4444  > /dev/null
+	@echo -e "soft_reset_halt\n set *0x80020010 = 0\n" | nc -i 1 localhost 4444  > /dev/null
 	arm-none-eabi-gdb hello.elf -x debugOCD.gdb
 
 
