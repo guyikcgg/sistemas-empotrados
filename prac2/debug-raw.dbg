@@ -1,0 +1,19 @@
+#Load the debug symbols
+file hello.elf
+
+#Make sure that openOCD is running, otherwise load it
+shell if [ ! `pgrep openocd` ]; then xterm -e "openocd -f interface/ftdi/redbee-econotag.cfg -f board/redbee.cfg" & sleep 1; fi      
+
+#Connect GDB to OpenOCD and reset the microcontroller
+target remote localhost:3333
+monitor soft_reset_halt
+shell sleep 1
+
+#Upload the image and wait for 1 second
+monitor load_image hello.elf
+shell sleep 1
+
+#Set a breakpoint at SRAM start address and run from there
+b *0x400000
+monitor step 0x3ffffc
+c

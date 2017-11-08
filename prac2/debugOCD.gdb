@@ -1,7 +1,14 @@
-target remote localhost:3333
+file hello.elf
+shell make check-openocd
 
-monitor soft_reset_halt
-load hello.elf 0x00400000
-b _start
-b loop
+conn
 
+greset
+wait
+monitor load_image hello.elf
+wait
+
+b *0x400000
+grestart
+
+c
